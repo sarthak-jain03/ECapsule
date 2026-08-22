@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  googleId  String   @unique
+  email     String   @unique
+  name      String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaigns EmailCampaign[]
+
+  @@map("users")
+}
+
+model EmailCampaign {
+  id                  String         @id @default(uuid())
+  userId              String
+  user                User           @relation(fields: [userId], references: [id])
+  subject             String
+  body                String         @db.Text
+  senderEmail         String
+  delayBetweenEmails  Int            @default(2) // seconds
+  hourlyLimit         Int            @default(100)
+  startTime           DateTime
+  status              CampaignStatus @default(PENDING)
+  totalRecipients     Int            @default(0)
+  sentCount           Int            @default(0)
+  failedCount         Int            @default(0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  jobs EmailJob[]
+
+  @@map("email_campaigns")
+}
+
+model EmailJob {
+  id                 String       @id @default(uuid())
+  campaignId         String
+  campaign           EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  recipientEmail     String
+  subject            String
+  body               String       @db.Text
+  senderEmail        String
+  scheduledAt        DateTime
+  sentAt             DateTime?
+  status             JobStatus    @default(SCHEDULED)
+  bullmqJobId        String?
+  etherealPreviewUrl String?
+  errorMessage       String?
+  idempotencyKey     String       @unique
+  retryCount         Int          @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([status])
+  @@index([campaignId])
+  @@index([scheduledAt])
+  @@index([senderEmail, status])
+  @@map("email_jobs")
+}
+
+enum CampaignStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+
+enum JobStatus {
+  SCHEDULED
+  QUEUED
+  SENDING
+  SENT
+  FAILED
+  RATE_LIMITED
+}
