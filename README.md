@@ -191,9 +191,9 @@ The backend relies on the following configurations in `backend/.env`:
 ##  Walkthrough Video
 Refer to the demo video below to see the application in action:
 
-![ECapsule Walkthrough Demo](assets/demo.gif)
+https://drive.google.com/file/d/1KvltDsAlcJJ-dwF8tAXV-8foVnzcd07h/view?usp=sharing
 
-*The demonstration walks through: Authenticating with Google OAuth, composing campaigns (adding recipients, adjusting delivery offsets and limits), verifying transition states in the live dashboard, simulating a backend server crash and reboot to show queue self-healing, and observing hourly rate limits throttle delivery under heavy queue loads.*
+![ECapsule Walkthrough Demo](assets/demo.gif)
 
 ---
 
